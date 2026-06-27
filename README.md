@@ -1,6 +1,6 @@
 # 🎬 StreamClip
 
-Auto viral clipper — Opus Clip style. Turns long YouTube videos/streams into vertical (9:16) shorts with TikTok-style karaoke captions.
+Auto Clipper Application for gaming streams, all local on your disk.
 
 ## How it works
 1. Downloads YouTube video with `yt-dlp`.
