@@ -5,3 +5,5 @@ work/
 output/
 electron/node_modules/
 electron/dist/
+electron/ffmpeg.exe
+electron/ffprobe.exe
