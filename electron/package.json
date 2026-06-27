@@ -1,0 +1,14 @@
+{
+  "name": "streamclip",
+  "version": "1.0.0",
+  "description": "Auto viral clipper — Opus Clip style for TikTok shorts",
+  "main": "main.js",
+  "scripts": {
+    "start": "node_modules/electron/dist/electron.exe .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}

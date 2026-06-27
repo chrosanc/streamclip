@@ -1,0 +1,8 @@
+{
+  "name": "streamclip",
+  "version": "1.0.0",
+  "description": "Auto viral clipper — Opus Clip style for TikTok shorts",
+  "scripts": {
+    "start": "node start.js"
+  }
+}

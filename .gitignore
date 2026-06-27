@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+work/
+output/
+electron/node_modules/
+electron/dist/

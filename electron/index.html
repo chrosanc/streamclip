@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StreamClip</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top bar with tab navigation -->
+  <div class="topbar">
+    <span class="topbar-logo">&#9654;</span>
+    <span class="topbar-title">StreamClip</span>
+    <div class="topbar-tabs">
+      <div class="nav-item active" onclick="switchPanel('create')">Create</div>
+      <div class="nav-item" onclick="switchPanel('settings')">Settings</div>
+      <div class="nav-item" onclick="switchPanel('clips')">Output</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-btn" onclick="window.api.openOutput()">Open Output</button>
+    <button class="topbar-btn" onclick="window.api.openExternal('https://console.groq.com')">Get API Key</button>
+  </div>
+
+  <div class="layout">
+
+    <!-- Left Inspector -->
+    <div class="inspector">
+
+      <!-- CREATE panel -->
+      <div id="panel-create" class="panel active">
+        <div class="panel-header">
+          <div class="panel-title">Create Clips</div>
+          <div class="panel-sub">Paste URL or pick local file</div>
+        </div>
+
+        <!-- Source type toggle -->
+        <div class="source-toggle">
+          <button class="src-btn active" id="btn-youtube" onclick="setSource('youtube')">YouTube</button>
+          <button class="src-btn" id="btn-local" onclick="setSource('local')">Local File</button>
+        </div>
+
+        <!-- YouTube input -->
+        <div id="src-youtube">
+          <div class="field">
+            <label>YouTube URL</label>
+            <input type="text" id="url" placeholder="https://youtube.com/watch?v=...">
+          </div>
+        </div>
+
+        <!-- Local file input -->
+        <div id="src-local" style="display:none">
+          <div class="field">
+            <label>Video / Audio File</label>
+            <div class="file-pick-row">
+              <input type="text" id="localPath" placeholder="No file selected..." readonly style="cursor:pointer" onclick="pickLocalFile()">
+              <button class="btn btn-ghost" onclick="pickLocalFile()">Browse</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Number of Clips</label>
+          <input type="number" id="numClips" min="1" max="20" value="5">
+        </div>
+
+        <div class="field">
+          <label>Caption Style</label>
+          <div class="template-grid" id="captionTemplateGrid">
+            <div class="template-card selected" data-val="capcut" onclick="selectTemplate('capcut')">
+              <div class="t-preview">
+                <div class="t-phrase">
+                  <span class="t-dim">MEET</span>
+                  <span class="t-pop" style="color:#00ff66">MY</span>
+                  <span class="t-dim">TEAM</span>
+                </div>
+              </div>
+              <div class="t-name">CapCut</div>
+              <div class="t-desc">Green pop, 4 words</div>
+            </div>
+            <div class="template-card" data-val="hormozi" onclick="selectTemplate('hormozi')">
+              <div class="t-preview">
+                <div class="t-phrase" style="font-size:22px;font-weight:900">
+                  <span class="t-dim">THIS</span>
+                  <span class="t-pop" style="color:#ffee00">IS</span>
+                  <span class="t-dim">FIRE</span>
+                </div>
+              </div>
+              <div class="t-name">Hormozi</div>
+              <div class="t-desc">Bold yellow, 3 words</div>
+            </div>
+            <div class="template-card" data-val="classic" onclick="selectTemplate('classic')">
+              <div class="t-preview">
+                <div class="t-phrase">
+                  <span class="t-dim">BEST</span>
+                  <span class="t-pop" style="color:#ffee00">DAY</span>
+                  <span class="t-dim">EVER</span>
+                </div>
+              </div>
+              <div class="t-name">Classic</div>
+              <div class="t-desc">Yellow pop, 4 words</div>
+            </div>
+            <div class="template-card" data-val="neon" onclick="selectTemplate('neon')">
+              <div class="t-preview">
+                <div class="t-phrase">
+                  <span class="t-dim">GO</span>
+                  <span class="t-pop" style="color:#ff00ff">FAST</span>
+                  <span class="t-dim">BRO</span>
+                </div>
+              </div>
+              <div class="t-name">Neon</div>
+              <div class="t-desc">Magenta pop, cyan outline</div>
+            </div>
+            <div class="template-card" data-val="minimal" onclick="selectTemplate('minimal')">
+              <div class="t-preview">
+                <div class="t-phrase">
+                  <span class="t-dim" style="color:#888">HELLO</span>
+                  <span class="t-pop" style="color:#fff">WORLD</span>
+                  <span class="t-dim" style="color:#888">HI</span>
+                </div>
+              </div>
+              <div class="t-name">Minimal</div>
+              <div class="t-desc">Clean white, no outline</div>
+            </div>
+          </div>
+          <input type="hidden" id="captionTemplate" value="capcut">
+        </div>
+
+        <div class="field">
+          <label>Caption Font</label>
+          <div class="font-row">
+            <select id="captionFont" class="font-select">
+              <option value="Arial">Arial</option>
+              <option value="Impact">Impact</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Comic Sans MS">Comic Sans MS</option>
+              <option value="Trebuchet MS">Trebuchet MS</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Times New Roman">Times New Roman</option>
+            </select>
+            <input type="number" id="captionSize" class="font-size" min="20" max="120" value="56" placeholder="Size">
+            <div class="color-row">
+              <label class="color-label">Base</label>
+              <input type="color" id="captionBaseColor" class="color-swatch" value="#ffffff">
+            </div>
+            <div class="color-row">
+              <label class="color-label">Pop</label>
+              <input type="color" id="captionHlColor" class="color-swatch" value="#00ff00">
+            </div>
+            <div class="color-row">
+              <label class="color-label">Outline</label>
+              <input type="color" id="captionOutlineColor" class="color-swatch" value="#000000">
+            </div>
+          </div>
+          <div class="font-preview" id="fontPreview">
+            <span class="fp-dim">HELLO</span>
+            <span class="fp-pop">WORLD</span>
+            <span class="fp-dim">TODAY</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Clip Layout</label>
+          <div class="layout-grid" id="clipLayoutGrid">
+            <div class="layout-card selected" data-val="auto" onclick="selectLayout('auto')">
+              <div class="l-icon">&#9881;</div>
+              <div class="l-name">Auto-detect</div>
+              <div class="l-desc">Gaming if detected</div>
+            </div>
+            <div class="layout-card" data-val="normal" onclick="selectLayout('normal')">
+              <div class="l-icon">&#9634;</div>
+              <div class="l-name">Normal</div>
+              <div class="l-desc">Center crop</div>
+            </div>
+            <div class="layout-card" data-val="gaming" onclick="selectLayout('gaming')">
+              <div class="l-icon">&#9654;</div>
+              <div class="l-name">Gaming</div>
+              <div class="l-desc">Facecam overlay</div>
+            </div>
+          </div>
+          <input type="hidden" id="clipLayout" value="auto">
+        </div>
+
+        <div class="field">
+          <label>Facecam Position (Gaming Layout)</label>
+          <div class="facecam-grid" id="facecamGrid">
+            <div class="facecam-card" data-val="top-left" onclick="selectFacecam('top-left')">Top Left</div>
+            <div class="facecam-card" data-val="top-center" onclick="selectFacecam('top-center')">Top Center</div>
+            <div class="facecam-card selected" data-val="top-right" onclick="selectFacecam('top-right')">Top Right</div>
+            <div class="facecam-card" data-val="bottom-left" onclick="selectFacecam('bottom-left')">Bottom Left</div>
+            <div class="facecam-card" data-val="custom" onclick="selectFacecam('custom')">✋ Custom</div>
+            <div class="facecam-card" data-val="bottom-right" onclick="selectFacecam('bottom-right')">Bottom Right</div>
+          </div>
+          <input type="hidden" id="facecamPos" value="top-right">
+          <input type="hidden" id="facecamCustom" value="0.7,0.02,0.28,0.28">
+          <input type="hidden" id="portraitScreenLayout" value="0,0,1,1">
+          <input type="hidden" id="portraitFcLayout" value="0,0.078125,1,0">
+          <input type="hidden" id="portraitBgPan" value="0.5,0.5">
+        </div>
+
+        <div class="field">
+          <div class="adv-toggle" onclick="toggleAdvanced()">
+            <span id="advArrow">&#9658;</span> Advanced
+          </div>
+          <div id="advancedPanel" class="adv-panel" style="display:none">
+            <div class="adv-row">
+              <label class="adv-label">FPS</label>
+              <input type="number" id="clipFps" class="adv-input" min="24" max="60" value="30" step="1">
+            </div>
+            <div class="adv-row">
+              <label class="adv-label">Bitrate (Mbps)</label>
+              <input type="number" id="clipBitrate" class="adv-input" min="1" max="50" value="8" step="0.5">
+            </div>
+            <div class="adv-row">
+              <label class="adv-label">Max Clip Duration (s)</label>
+              <input type="number" id="maxClipDuration" class="adv-input" min="15" max="120" value="60" step="5">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Output Folder</label>
+          <div class="file-pick-row">
+            <input type="text" id="outputDir" placeholder="Click browse to select..." readonly style="cursor:pointer" onclick="browseFolder()">
+            <button class="btn btn-ghost" onclick="browseFolder()">Browse</button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="runBtn" onclick="runClipper()">
+          Start Clipping
+        </button>
+        <button class="btn btn-danger btn-full" id="stopBtn" onclick="stopClipper()" style="display:none; margin-top:8px">
+          Stop
+        </button>
+
+        <!-- Progress -->
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-steps">
+            <div class="step" id="step-download">Download</div>
+            <div class="step" id="step-transcribe">Transcribe</div>
+            <div class="step" id="step-analyze">Analyze</div>
+            <div class="step" id="step-render">Render</div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="log-list" id="logList"></div>
+          <div class="output-grid" id="outputGrid"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS panel -->
+      <div id="panel-settings" class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Settings</div>
+          <div class="panel-sub">Configure your API providers</div>
+        </div>
+
+        <!-- STT -->
+        <div class="section-header">Transcription (STT)</div>
+        <div class="provider-grid" id="sttProviders"></div>
+        <div class="field">
+          <label>API Base URL</label>
+          <input type="text" id="sttBaseUrl" placeholder="https://api.groq.com/openai/v1">
+        </div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="password" id="sttApiKey" placeholder="gsk_...">
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <input type="text" id="sttModel" placeholder="whisper-large-v3">
+        </div>
+
+        <!-- LLM -->
+        <div class="section-header">Viral Analysis (LLM)</div>
+        <div class="provider-grid" id="llmProviders"></div>
+        <div class="field">
+          <label>API Base URL</label>
+          <input type="text" id="llmBaseUrl" placeholder="https://api.groq.com/openai/v1">
+        </div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="password" id="llmApiKey" placeholder="gsk_...">
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <input type="text" id="llmModel" placeholder="llama-3.3-70b-versatile">
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="saveSettings()" style="margin-top:8px">
+          Save Settings
+        </button>
+      </div>
+
+      <!-- OUTPUT panel -->
+      <div id="panel-clips" class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Output</div>
+          <div class="panel-sub">Your generated clips</div>
+        </div>
+        <div class="output-grid" id="outputGridFull"></div>
+      </div>
+
+    </div>
+
+    <!-- Center Workspace -->
+    <div class="workspace" id="workspaceArea">
+      <div class="workspace-empty" id="workspaceEmpty">
+        <div class="workspace-icon">&#9654;</div>
+        <div class="workspace-text">Configure your clip in the panel on the left</div>
+      </div>
+
+      <!-- Preview + Timeline -->
+      <div id="previewBox" class="preview-box">
+        <div class="preview-split">
+          <div class="preview-video-wrap" id="previewWrap">
+            <video id="previewVideo" preload="metadata"></video>
+            <div class="preview-empty" id="previewEmpty">No preview · pick a local file</div>
+            <div id="facecamOverlay" class="facecam-overlay" style="display:none">
+              <div class="fc-handle fc-tl"></div>
+              <div class="fc-handle fc-tr"></div>
+              <div class="fc-handle fc-bl"></div>
+              <div class="fc-handle fc-br"></div>
+              <div class="fc-handle fc-move"></div>
+            </div>
+          </div>
+
+          <div class="portrait-preview" id="portraitPreview">
+            <div class="portrait-label">9:16 OUTPUT</div>
+            <div class="portrait-frame" id="portraitFrame">
+              <div class="portrait-screen" id="portraitScreen">
+                <video id="portraitVideo" preload="metadata" muted></video>
+                <div class="pt-handle pt-tl" data-pt="screen-tl"></div>
+                <div class="pt-handle pt-tr" data-pt="screen-tr"></div>
+                <div class="pt-handle pt-bl" data-pt="screen-bl"></div>
+                <div class="pt-handle pt-br" data-pt="screen-br"></div>
+                <div class="pt-handle pt-move" data-pt="screen-move"></div>
+              </div>
+              <div class="portrait-facecam" id="portraitFacecam">
+                <video id="portraitFacecamVideo" preload="metadata" muted></video>
+                <div class="pt-handle pt-tl" data-pt="fc-tl"></div>
+                <div class="pt-handle pt-tr" data-pt="fc-tr"></div>
+                <div class="pt-handle pt-bl" data-pt="fc-bl"></div>
+                <div class="pt-handle pt-br" data-pt="fc-br"></div>
+                <div class="pt-handle pt-move" data-pt="fc-move"></div>
+              </div>
+              <div class="portrait-caption" id="portraitCaption">YOUR CAPTION</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-panel">
+          <div class="timeline-ruler" id="timelineRuler"></div>
+          <div class="timeline-body">
+            <div class="timeline-track" id="timelineTrack">
+              <div class="timeline-clip" id="timelineClip"></div>
+            </div>
+            <div class="range-slider" id="rangeSlider">
+              <div class="range-track"></div>
+              <div class="range-fill" id="rangeFill"></div>
+              <div class="range-handle range-handle-start" id="handleStart"></div>
+              <div class="range-handle range-handle-end" id="handleEnd"></div>
+              <div class="timeline-playhead" id="timelinePlayhead"></div>
+            </div>
+          </div>
+          <div class="timeline-footer">
+            <div class="range-row">
+              <span class="range-time" id="rangeTime">00:00 → 00:00</span>
+            </div>
+            <div class="range-controls">
+              <button class="btn btn-ghost btn-sm" onclick="seekTo('start')">⏮</button>
+              <button class="btn btn-ghost btn-sm" id="playPauseBtn" onclick="togglePlay()">▶</button>
+              <button class="btn btn-ghost btn-sm" onclick="seekTo('end')">⏭</button>
+              <div style="flex:1"></div>
+              <button class="btn btn-ghost btn-sm" onclick="resetRange()">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
