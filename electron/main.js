@@ -17,10 +17,38 @@ if (process.platform === "win32") {
 
 let win, pythonProcess;
 
-function checkRequirements() {
+function ensureFFmpeg() {
+  const ffmpegExe = path.join(localBinPath, "ffmpeg.exe");
+  if (fs.existsSync(ffmpegExe)) return;
+  try {
+    const zipPath = path.join(localBinPath, "ffmpeg.zip");
+    // Download ffmpeg zip (Windows build)
+    const url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+    // Use PowerShell to download
+    execSync(`powershell -Command "Invoke-WebRequest -Uri '${url}' -OutFile '${zipPath}'"`, { stdio: "ignore" });
+    // Extract ffmpeg.exe from zip (assumes top-level folder contains bin/ffmpeg.exe)
+    execSync(`powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${localBinPath}' -Force"`, { stdio: "ignore" });
+    // Move ffmpeg.exe to localBinPath root if nested
+    const extractedBin = path.join(localBinPath, "ffmpeg-*-essentials_build", "bin", "ffmpeg.exe");
+    const files = fs.readdirSync(localBinPath).filter(f => f.startsWith("ffmpeg-"));
+    if (files.length) {
+      const src = path.join(localBinPath, files[0], "bin", "ffmpeg.exe");
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, ffmpegExe);
+      }
+    }
+    // Cleanup zip and extracted folder
+    try { fs.unlinkSync(zipPath); } catch {}
+    // Optionally remove extracted folder
+  } catch (e) {
+    dialog.showErrorBox("FFmpeg Download Failed", "Unable to download FFmpeg. Please install it manually.");
+  }
+}
+
   const rootDir = isDev ? path.join(__dirname, "..") : process.resourcesPath;
   const reqPath = path.join(rootDir, "requirements.txt");
 
+  ensureFFmpeg();
   // 1. Check ffmpeg
   try {
     execSync("ffmpeg -version", { stdio: "ignore" });
