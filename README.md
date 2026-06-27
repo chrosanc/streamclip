@@ -1,6 +1,6 @@
 # 🎬 StreamClip
 
-Auto Clipper Application for gaming streams, all local on your disk.
+Auto Clipper Application for gaming streams, Use your own api, or locally from your PC.
 
 ## How it works
 1. Downloads YouTube video with `yt-dlp`.
