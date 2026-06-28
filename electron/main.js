@@ -45,6 +45,7 @@ function ensureFFmpeg() {
   }
 }
 
+function checkRequirements() {
   const rootDir = isDev ? path.join(__dirname, "..") : process.resourcesPath;
   const reqPath = path.join(rootDir, "requirements.txt");
 
@@ -62,10 +63,8 @@ function ensureFFmpeg() {
   // 2. Install Python requirements
   try {
     const pythonCmd = "python";
-    const result = execSync(`"${pythonCmd}" -m pip install -r "${reqPath}"`, { stdio: "ignore" });
-    // pip exits 0 on success, 1 on "already satisfied" (upgrade notice) — both are fine
+    execSync(`"${pythonCmd}" -m pip install -r "${reqPath}"`, { stdio: "ignore" });
   } catch (e) {
-    // pip exit code 0 = success, 1 = already satisfied, anything else = real error
     const code = e.status;
     if (code !== 0 && code !== 1) {
       dialog.showErrorBox(
