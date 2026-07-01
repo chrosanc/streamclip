@@ -1,3 +1,5 @@
+<img width="986" height="643" alt="image" src="https://github.com/user-attachments/assets/77db7d1c-7e98-4aa2-9f1a-f3fd12de3de9" />
+
 # 🎬 StreamClip
 
 Auto Clipper Application for gaming streams, Use your own api, or locally from your PC.
