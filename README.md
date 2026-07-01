@@ -2,7 +2,7 @@
 
 # 🎬 StreamClip
 
-Auto Clipper Application for gaming streams, Use your own api, or locally from your PC.
+Auto Clipper Application for streams. Download your own videos or use videos from disk. Use your own LLM's API.
 
 ## How it works
 1. Downloads YouTube video with `yt-dlp`.
@@ -66,6 +66,3 @@ Edit the ASS styles in `editor.py` (`_make_ass` function):
 - `Style: Active,Arial,40,...` — change font, size, colors (yellow `&H0000FFFF`).
 - `Alignment=2` is bottom-center, `MarginV=80` lifts captions off the edge.
 
-## Free tier notes
-- Groq Whisper limit: ~7,200 sec/day. Long streams are auto-chunked into 10-min pieces.
-- Llama 3.3 70B: generous free tier, plenty for transcript analysis.
