@@ -5,7 +5,42 @@
   "main": "main.js",
   "scripts": {
     "start": "node_modules/electron/dist/electron.exe .",
-    "build": "electron-builder"
+    "build": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.streamclip.app",
+    "productName": "StreamClip",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "**/*",
+      "!dist-electron/**/*",
+      "!node_modules/.cache/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../dist/streamclip-backend",
+        "to": "backend"
+      },
+      {
+        "from": "ffmpeg.exe",
+        "to": "ffmpeg.exe"
+      },
+      {
+        "from": "ffprobe.exe",
+        "to": "ffprobe.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   },
   "devDependencies": {
     "electron": "^32.0.0",

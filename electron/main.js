@@ -7,8 +7,8 @@ const isDev = !app.isPackaged;
 const dataPath = app.getPath("userData");
 const settingsFile = path.join(dataPath, "settings.json");
 
-// Add local electron folder to PATH so local ffmpeg/ffprobe are found
-const localBinPath = __dirname;
+// Add bundled ffmpeg/ffprobe to PATH
+const localBinPath = isDev ? __dirname : process.resourcesPath;
 if (process.platform === "win32") {
   process.env.PATH = `${localBinPath};${process.env.PATH}`;
 } else {
@@ -46,11 +46,8 @@ function ensureFFmpeg() {
 }
 
 function checkRequirements() {
-  const rootDir = isDev ? path.join(__dirname, "..") : process.resourcesPath;
-  const reqPath = path.join(rootDir, "requirements.txt");
-
   ensureFFmpeg();
-  // 1. Check ffmpeg
+  // Check ffmpeg
   try {
     execSync("ffmpeg -version", { stdio: "ignore" });
   } catch (e) {
@@ -58,20 +55,6 @@ function checkRequirements() {
       "FFmpeg Missing",
       "FFmpeg is not installed or not on your PATH. Please install FFmpeg to use StreamClip."
     );
-  }
-
-  // 2. Install Python requirements
-  try {
-    const pythonCmd = "python";
-    execSync(`"${pythonCmd}" -m pip install -r "${reqPath}"`, { stdio: "ignore" });
-  } catch (e) {
-    const code = e.status;
-    if (code !== 0 && code !== 1) {
-      dialog.showErrorBox(
-        "Python Dependencies Error",
-        "Failed to install Python requirements. Make sure Python 3 is installed and on your PATH.\n\nError: " + e.message
-      );
-    }
   }
 }
 
@@ -128,8 +111,16 @@ ipcMain.handle("runClipper", (_, opts) => {
   return new Promise((resolve, reject) => {
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-    const pythonPath = isDev ? "python" : path.join(process.resourcesPath, "python");
-    const script = isDev ? path.join(__dirname, "..", "runner.py") : path.join(process.resourcesPath, "runner.py");
+    // Use bundled backend.exe in production, python runner.py in dev
+    let backendExe;
+    if (isDev) {
+      backendExe = path.join(__dirname, "..", "dist", "streamclip-backend", "streamclip-backend.exe");
+      if (!fs.existsSync(backendExe)) {
+        backendExe = "python"; // fallback to python if not built
+      }
+    } else {
+      backendExe = path.join(process.resourcesPath, "backend", "streamclip-backend.exe");
+    }
 
     const fontArgs = [
       "--caption-font", captionFont || "Arial",
@@ -142,13 +133,13 @@ ipcMain.handle("runClipper", (_, opts) => {
       "--max-clip-duration", String(maxClipDuration || 60),
     ];
     const baseArgs = local && localPath
-      ? [script, localPath, "-n", String(numClips), "-o", outputDir, "--local", "--template", template, "--layout", layout, "--facecam-pos", facecamPos, "--facecam-custom", facecamCustom || "0.7,0.02,0.28,0.28", "--portrait-screen-layout", portraitScreenLayout || "0,0,1,1", "--portrait-fc-layout", portraitFcLayout || "0,0.078125,1,0", "--portrait-bg-pan", portraitBgPan || "0.5,0.5", ...fontArgs]
-      : [script, url, "-n", String(numClips), "-o", outputDir, "--template", template, "--layout", layout, "--facecam-pos", facecamPos, "--facecam-custom", facecamCustom || "0.7,0.02,0.28,0.28", "--portrait-screen-layout", portraitScreenLayout || "0,0,1,1", "--portrait-fc-layout", portraitFcLayout || "0,0.078125,1,0", "--portrait-bg-pan", portraitBgPan || "0.5,0.5", ...fontArgs];
+      ? [localPath, "-n", String(numClips), "-o", outputDir, "--local", "--template", template, "--layout", layout, "--facecam-pos", facecamPos, "--facecam-custom", facecamCustom || "0.7,0.02,0.28,0.28", "--portrait-screen-layout", portraitScreenLayout || "0,0,1,1", "--portrait-fc-layout", portraitFcLayout || "0,0.078125,1,0", "--portrait-bg-pan", portraitBgPan || "0.5,0.5", ...fontArgs]
+      : [url, "-n", String(numClips), "-o", outputDir, "--template", template, "--layout", layout, "--facecam-pos", facecamPos, "--facecam-custom", facecamCustom || "0.7,0.02,0.28,0.28", "--portrait-screen-layout", portraitScreenLayout || "0,0,1,1", "--portrait-fc-layout", portraitFcLayout || "0,0.078125,1,0", "--portrait-bg-pan", portraitBgPan || "0.5,0.5", ...fontArgs];
 
     if (startTime > 0) baseArgs.push("--start", String(startTime));
     if (endTime > 0) baseArgs.push("--end", String(endTime));
 
-    pythonProcess = spawn(pythonPath, baseArgs, {
+    pythonProcess = spawn(backendExe, baseArgs, {
       cwd: isDev ? path.join(__dirname, "..") : process.resourcesPath,
       env: {
         ...process.env,
