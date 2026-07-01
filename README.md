@@ -6,10 +6,10 @@ Auto Clipper Application for streams. Download your own videos or use videos fro
 
 ## Download
 
-- **Installer**: [StreamClip Setup 1.0.0.exe](https://github.com/chrosanc/streamclip/releases/download/v1.0.0/StreamClip%20Setup%201.0.0.exe) (396.6 MB)
-- **Portable**: [StreamClip-win.zip](https://github.com/chrosanc/streamclip/releases/download/v1.0.0/StreamClip-win.zip) (549.6 MB)
+[![Download Installer](https://img.shields.io/badge/Download-Installer-blue?style=for-the-badge&logo=windows)](https://github.com/chrosanc/streamclip/releases/download/v1.0.0/StreamClip%20Setup%201.0.0.exe)
+[![Download Portable](https://img.shields.io/badge/Download-Portable_ZIP-green?style=for-the-badge&logo=windows)](https://github.com/chrosanc/streamclip/releases/download/v1.0.0/StreamClip-win.zip)
 
-*Choose installer for easy setup, or portable ZIP for no-install use.*
+*Installer (396.6 MB) for easy setup, Portable ZIP (549.6 MB) for no-install use.*
 
 ## How it works
 1. Downloads YouTube video with `yt-dlp`.
