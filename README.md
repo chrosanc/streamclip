@@ -13,8 +13,8 @@ Auto Clipper Application for streams. Download your own videos or use videos fro
 
 ## How it works
 1. Downloads YouTube video with `yt-dlp`.
-2. Extracts audio and transcribes it via **Groq Whisper API** (free, word-level timestamps).
-3. Sends transcript to **Groq Llama 3.3** to score viral moments.
+2. Extracts audio and transcribes with API (Groq, OpenAI, AssemblyAI).
+3. Sends transcript to any OPENAI COMPATIBLE API KEY.
 4. Cuts top moments, crops 9:16, burns animated subtitles using `ffmpeg`.
 
 ## Requirements
